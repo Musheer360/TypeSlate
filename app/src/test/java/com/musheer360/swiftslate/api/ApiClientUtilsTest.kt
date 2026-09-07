@@ -16,6 +16,52 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class ApiClientUtilsTest {
 
+    // --- stripReasoningBlock ---
+
+    @Test
+    fun stripReasoningBlock_keeps_only_text_after_closing_tag() {
+        // Groq raw reasoning_format: thinking first, answer after.
+        assertEquals(
+            "Airplanes fly by generating lift.",
+            ApiClientUtils.stripReasoningBlock(
+                "<think>The user asked how planes fly. Keep it short.</think>Airplanes fly by generating lift."
+            )
+        )
+    }
+
+    @Test
+    fun stripReasoningBlock_handles_missing_opening_tag() {
+        // The opening tag is not always present in the content we receive.
+        assertEquals(
+            "Rewritten text.",
+            ApiClientUtils.stripReasoningBlock("Let me reason about this first.</think>Rewritten text.")
+        )
+    }
+
+    @Test
+    fun stripReasoningBlock_uses_last_closing_tag() {
+        assertEquals(
+            "Final answer.",
+            ApiClientUtils.stripReasoningBlock("<think>a</think><think>b</think>Final answer.")
+        )
+    }
+
+    @Test
+    fun stripReasoningBlock_returns_blank_when_only_reasoning() {
+        // Caller treats blank as "empty response" rather than pasting anything.
+        assertEquals("", ApiClientUtils.stripReasoningBlock("<think>thinking with no answer</think>"))
+    }
+
+    @Test
+    fun stripReasoningBlock_leaves_normal_text_untouched() {
+        assertEquals("Just some prose.", ApiClientUtils.stripReasoningBlock("Just some prose."))
+        // No closing tag => untouched, so user prose mentioning the word is safe.
+        assertEquals(
+            "I think <think> is an HTML-ish tag",
+            ApiClientUtils.stripReasoningBlock("I think <think> is an HTML-ish tag")
+        )
+    }
+
     // --- isModelRefusal ---
 
     @Test

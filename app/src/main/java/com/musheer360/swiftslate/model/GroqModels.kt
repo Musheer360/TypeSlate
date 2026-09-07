@@ -35,6 +35,21 @@ package com.musheer360.swiftslate.model
  *  3. Qwen 3.x models: reasoning can be fully turned off with
  *     reasoning_effort="none" (zero reasoning tokens). "low"/"medium"/"high"
  *     return 400 for Qwen.
+ *
+ * Measured against the live API (2026-09), qwen/qwen3.6-27b on the same prompt:
+ * reasoning_effort="none" returned in 249 ms using 16 output tokens, while sending
+ * no reasoning params at all took 3018 ms and 1413 output tokens — and Groq then
+ * reserves ~2048 output tokens per request, which exceeds the free tier's 1000 OTPM
+ * limit and makes requests fail with HTTP 413 outright. That is why these values are
+ * pinned rather than left to the provider default. openai/gpt-oss-120b is the
+ * exception: it defaults to 465 ms / 78 tokens and returns reasoning in a separate
+ * field, so it is unaffected either way.
+ *
+ * Models NOT in [SPECS] still get no reasoning params, because the valid values are
+ * per-model and absent from /models — Groq's response exposes
+ * supported_features ["reasoning"] but not which efforts are legal. Non-GPT-OSS
+ * reasoning models therefore emit their chain of thought inline in the content, which
+ * [ApiClientUtils.stripReasoningBlock] removes before it reaches the user.
  */
 object GroqModels {
 
