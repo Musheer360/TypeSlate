@@ -1,0 +1,6 @@
+- fix(commands): make translate trigger lowercase xx and position at bottom of built-ins
+- feat(commands): show ?translate:XX as built-in command in UI
+- fix(ui): restore comfortable breathing room around temperature slider
+- fix(ui): restore natural Card 4 spacing and center divider across all devices
+- fix(ui): refine card vertical spacing and contentPadding for perfect S23 height alignment
+- fix(ui): remove model status row, default to blank dropdown, and fix S23 bottom cl
