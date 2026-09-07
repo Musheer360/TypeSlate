@@ -34,6 +34,7 @@ import kotlinx.coroutines.withContext
 import com.musheer360.swiftslate.manager.CommandManager
 import com.musheer360.swiftslate.manager.KeyManager
 import com.musheer360.swiftslate.manager.ProviderModelsCache
+import com.musheer360.swiftslate.model.GeminiModels
 import com.musheer360.swiftslate.model.GroqModels
 import com.musheer360.swiftslate.model.PrefKeys
 import com.musheer360.swiftslate.model.ProviderType
@@ -139,8 +140,9 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                 if (success) {
                     geminiModelList = models
                     if (selectedModel.isBlank() && models.isNotEmpty()) {
-                        selectedModel = models.first()
-                        prefs.edit().putString(PrefKeys.GEMINI_MODEL, models.first()).apply()
+                        val pick = preferredModel(models, GeminiModels.DEFAULT)
+                        selectedModel = pick
+                        prefs.edit().putString(PrefKeys.GEMINI_MODEL, pick).apply()
                     }
                 }
             } else {
@@ -148,8 +150,9 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                 if (success) {
                     groqModelList = models
                     if (groqModel.isBlank() && models.isNotEmpty()) {
-                        groqModel = models.first()
-                        prefs.edit().putString(PrefKeys.GROQ_MODEL, models.first()).apply()
+                        val pick = preferredModel(models, GroqModels.DEFAULT)
+                        groqModel = pick
+                        prefs.edit().putString(PrefKeys.GROQ_MODEL, pick).apply()
                     }
                 }
             }
@@ -740,6 +743,23 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
         )
     }
 }
+
+/**
+ * First-run model choice from a freshly fetched provider catalogue.
+ *
+ * Returns [default] when the provider still serves it, else the first entry.
+ *
+ * Deliberately not just `models.first()`, which is what this used to be. Neither
+ * provider's /models response marks a recommended model and list order is not a
+ * recommendation: Gemini returns gemini-2.5-flash first, which is closed to new API
+ * keys and answers every request with NOT_FOUND ("no longer available to new users"),
+ * so a fresh install auto-selected a model that could not run a single command. Groq
+ * ordered qwen/qwen3.8-27b first, a reasoning model that is slower and needs its
+ * chain of thought stripped. The curated DEFAULT exists precisely to make this call;
+ * list order only decides when DEFAULT has been withdrawn.
+ */
+internal fun preferredModel(models: List<String>, default: String): String =
+    if (models.contains(default)) default else models.first()
 
 /**
  * Read-only dropdown listing one provider's dynamically fetched model ids
