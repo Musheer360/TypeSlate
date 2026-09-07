@@ -34,6 +34,7 @@ import com.musheer360.swiftslate.manager.KeyManager
 import com.musheer360.swiftslate.model.PrefKeys
 import com.musheer360.swiftslate.model.ProviderType
 import com.musheer360.swiftslate.provider.GroqConfig
+import com.musheer360.swiftslate.ui.components.LocalSlateRhythm
 import com.musheer360.swiftslate.ui.components.ScreenTitle
 import com.musheer360.swiftslate.ui.components.SlateCard
 import com.musheer360.swiftslate.ui.components.SlateItemCard
@@ -71,12 +72,13 @@ fun KeysScreen(keyManager: KeyManager, prefs: SharedPreferences) {
     val customEndpointRequiredMsg = stringResource(R.string.keys_custom_endpoint_required)
     val signinRequiredMsg = stringResource(R.string.error_provider_auth_required)
     val endpointNeedsV1Msg = stringResource(R.string.keys_endpoint_needs_v1)
+    val rhythm = LocalSlateRhythm.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer { } // Creates a hardware layer for smooth NavHost slide animations
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = rhythm.screenPaddingH, vertical = rhythm.screenPaddingV)
     ) {
         ScreenTitle(stringResource(R.string.keys_title))
 
@@ -85,10 +87,10 @@ fun KeysScreen(keyManager: KeyManager, prefs: SharedPreferences) {
                 Text(
                     text = keystoreErrorMsg,
                     color = MaterialTheme.colorScheme.error,
-                    fontSize = 13.sp
+                    fontSize = rhythm.bodySize
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(rhythm.cardGap))
         }
 
         SlateCard {
@@ -99,7 +101,7 @@ fun KeysScreen(keyManager: KeyManager, prefs: SharedPreferences) {
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation()
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(rhythm.groupGap))
             Button(
                 onClick = {
                     if (newKey.isNotBlank()) {
@@ -178,8 +180,8 @@ fun KeysScreen(keyManager: KeyManager, prefs: SharedPreferences) {
                 Text(
                     text = testResult!!,
                     color = if (testSuccess) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
-                    fontSize = 13.sp,
-                    modifier = Modifier.padding(top = 8.dp)
+                    fontSize = rhythm.bodySize,
+                    modifier = Modifier.padding(top = rhythm.formGap)
                 )
             }
             val (apiKeyUrl, providerName) = when (prefs.getString(PrefKeys.PROVIDER_TYPE, ProviderType.GEMINI) ?: ProviderType.GEMINI) {
@@ -191,21 +193,21 @@ fun KeysScreen(keyManager: KeyManager, prefs: SharedPreferences) {
                 Text(
                     text = stringResource(R.string.keys_get_api_key, providerName),
                     color = MaterialTheme.colorScheme.primary,
-                    fontSize = 13.sp,
+                    fontSize = rhythm.bodySize,
                     modifier = Modifier
                         .clickable(interactionSource = null, indication = null) { uriHandler.openUri(apiKeyUrl) }
-                        .padding(top = 8.dp)
+                        .padding(top = rhythm.formGap)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(rhythm.cardGap))
 
         if (keys.isNotEmpty()) {
             SlateCard(modifier = Modifier.weight(1f)) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(rhythm.listGap),
                     contentPadding = PaddingValues(bottom = 4.dp)
                 ) {
                     itemsIndexed(keys, key = { index, k -> "$index-${k.hashCode()}" }) { index, key ->
@@ -213,13 +215,13 @@ fun KeysScreen(keyManager: KeyManager, prefs: SharedPreferences) {
                             Text(
                                 text = "••••••••" + key.takeLast(4),
                                 fontWeight = FontWeight.Medium,
-                                fontSize = 15.sp,
+                                fontSize = rhythm.emphasisSize,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {}
                             )
                             Text(
                                 text = stringResource(R.string.delete_confirm_button),
-                                fontSize = 13.sp,
+                                fontSize = rhythm.bodySize,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.clickable(
@@ -242,7 +244,7 @@ fun KeysScreen(keyManager: KeyManager, prefs: SharedPreferences) {
                 ) {
                     Text(
                         text = stringResource(R.string.keys_empty),
-                        fontSize = 13.sp,
+                        fontSize = rhythm.bodySize,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

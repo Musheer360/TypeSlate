@@ -39,6 +39,7 @@ import com.musheer360.swiftslate.R
 import com.musheer360.swiftslate.manager.CommandManager
 import com.musheer360.swiftslate.model.Command
 import com.musheer360.swiftslate.model.CommandType
+import com.musheer360.swiftslate.ui.components.LocalSlateRhythm
 import com.musheer360.swiftslate.ui.components.ScreenTitle
 import com.musheer360.swiftslate.ui.components.SlateCard
 import com.musheer360.swiftslate.ui.components.SlateItemCard
@@ -84,11 +85,13 @@ fun CommandsScreen(commandManager: CommandManager) {
         label = "chevron"
     )
 
+    val rhythm = LocalSlateRhythm.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer { }
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = rhythm.screenPaddingH, vertical = rhythm.screenPaddingV)
     ) {
         ScreenTitle(stringResource(R.string.commands_title))
 
@@ -98,7 +101,7 @@ fun CommandsScreen(commandManager: CommandManager) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = rhythm.cardGap)
                     .semantics { contentDescription = searchLabel },
                 shape = RoundedCornerShape(10.dp),
                 color = MaterialTheme.colorScheme.surface
@@ -122,7 +125,7 @@ fun CommandsScreen(commandManager: CommandManager) {
                         onValueChange = { searchQuery = it },
                         singleLine = true,
                         textStyle = LocalTextStyle.current.copy(
-                            fontSize = 15.sp,
+                            fontSize = rhythm.emphasisSize,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurface
                         ),
@@ -133,7 +136,7 @@ fun CommandsScreen(commandManager: CommandManager) {
                                 if (searchQuery.isEmpty()) {
                                     Text(
                                         text = searchLabel,
-                                        fontSize = 15.sp,
+                                        fontSize = rhythm.emphasisSize,
                                         fontWeight = FontWeight.Medium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -177,14 +180,14 @@ fun CommandsScreen(commandManager: CommandManager) {
             SlateCard(modifier = Modifier.weight(1f)) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(rhythm.listGap),
                     contentPadding = PaddingValues(bottom = 4.dp)
                 ) {
                     if (filteredCommands.isEmpty() && searchQuery.isNotBlank()) {
                         item {
                             Text(
                                 text = stringResource(R.string.commands_search_empty),
-                                fontSize = 13.sp,
+                                fontSize = rhythm.bodySize,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                                 textAlign = TextAlign.Center
@@ -209,14 +212,14 @@ fun CommandsScreen(commandManager: CommandManager) {
                                     Text(
                                         text = cmd.trigger,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 15.sp,
+                                        fontSize = rhythm.emphasisSize,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     if (!cmd.isBuiltIn) {
                                         Spacer(modifier = Modifier.weight(1f))
                                         Text(
                                             text = stringResource(R.string.commands_edit_command),
-                                            fontSize = 13.sp,
+                                            fontSize = rhythm.bodySize,
                                             fontWeight = FontWeight.Medium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.clickable(
@@ -234,12 +237,12 @@ fun CommandsScreen(commandManager: CommandManager) {
                                         )
                                         Text(
                                             text = " | ",
-                                            fontSize = 13.sp,
+                                            fontSize = rhythm.bodySize,
                                             color = MaterialTheme.colorScheme.primary
                                         )
                                         Text(
                                             text = stringResource(R.string.commands_delete_command),
-                                            fontSize = 13.sp,
+                                            fontSize = rhythm.bodySize,
                                             fontWeight = FontWeight.Medium,
                                             color = MaterialTheme.colorScheme.error,
                                             modifier = Modifier.clickable(
@@ -254,7 +257,7 @@ fun CommandsScreen(commandManager: CommandManager) {
                                         Spacer(modifier = Modifier.weight(1f))
                                         Text(
                                             text = stringResource(R.string.commands_built_in),
-                                            fontSize = 13.sp,
+                                            fontSize = rhythm.bodySize,
                                             fontWeight = FontWeight.Medium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -272,10 +275,10 @@ fun CommandsScreen(commandManager: CommandManager) {
                                     ) + fadeOut(tween(150))
                                 ) {
                                     Column {
-                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Spacer(modifier = Modifier.height(rhythm.formGap))
                                         Text(
                                             text = cmd.prompt,
-                                            fontSize = 13.sp,
+                                            fontSize = rhythm.bodySize,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                                         )
                                     }
@@ -289,7 +292,7 @@ fun CommandsScreen(commandManager: CommandManager) {
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(rhythm.cardGap))
 
         // Collapsible form card — at the bottom
         SlateCard {
@@ -309,7 +312,7 @@ fun CommandsScreen(commandManager: CommandManager) {
             ) {
                 Text(
                     text = stringResource(R.string.commands_add_custom_title),
-                    fontSize = 15.sp,
+                    fontSize = rhythm.emphasisSize,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -333,7 +336,7 @@ fun CommandsScreen(commandManager: CommandManager) {
                 ) + fadeOut(tween(150))
             ) {
                 Column {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(rhythm.groupGap))
                     SingleChoiceSegmentedButtonRow(
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -374,7 +377,7 @@ fun CommandsScreen(commandManager: CommandManager) {
                             Text(stringResource(R.string.commands_type_replacer))
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(rhythm.groupGap))
                     SlateTextField(
                         value = trigger,
                         onValueChange = {
@@ -391,7 +394,7 @@ fun CommandsScreen(commandManager: CommandManager) {
                         label = { Text(stringResource(R.string.commands_trigger_label, prefix)) },
                         singleLine = true
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(rhythm.formGap))
                     SlateTextField(
                         value = prompt,
                         onValueChange = {
@@ -408,11 +411,11 @@ fun CommandsScreen(commandManager: CommandManager) {
                         Text(
                             text = msg,
                             color = MaterialTheme.colorScheme.error,
-                            fontSize = 13.sp,
-                            modifier = Modifier.padding(top = 8.dp)
+                            fontSize = rhythm.bodySize,
+                            modifier = Modifier.padding(top = rhythm.formGap)
                         )
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(rhythm.groupGap))
                     if (editingTrigger != null) {
                         TextButton(
                             onClick = {

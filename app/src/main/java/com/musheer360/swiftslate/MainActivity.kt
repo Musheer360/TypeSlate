@@ -12,6 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -34,6 +36,8 @@ import com.musheer360.swiftslate.ui.CommandsScreen
 import com.musheer360.swiftslate.ui.DashboardScreen
 import com.musheer360.swiftslate.ui.KeysScreen
 import com.musheer360.swiftslate.ui.SettingsScreen
+import com.musheer360.swiftslate.ui.components.LocalSlateRhythm
+import com.musheer360.swiftslate.ui.components.SlateRhythm
 import com.musheer360.swiftslate.ui.theme.SwiftSlateTheme
 
 enum class Tab(@param:StringRes val titleRes: Int, val icon: ImageVector) {
@@ -143,7 +147,16 @@ fun SwiftSlateMainScreen(vm: SwiftSlateViewModel = viewModel()) {
             },
             label = "tab_transition"
         ) { tab ->
-            screens[tab]?.invoke()
+            // One rhythm for every tab, derived from the height the content area
+            // actually has after the nav bar and system insets. Resolving it here
+            // rather than per screen is what keeps padding, gaps and type identical
+            // across Dashboard, Keys, Commands and Settings.
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                val rhythm = remember(maxHeight) { SlateRhythm.forHeight(maxHeight) }
+                CompositionLocalProvider(LocalSlateRhythm provides rhythm) {
+                    screens[tab]?.invoke()
+                }
+            }
         }
     }
 }
