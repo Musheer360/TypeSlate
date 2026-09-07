@@ -34,7 +34,6 @@ import kotlinx.coroutines.withContext
 import com.musheer360.swiftslate.manager.CommandManager
 import com.musheer360.swiftslate.manager.KeyManager
 import com.musheer360.swiftslate.manager.ProviderModelsCache
-import com.musheer360.swiftslate.model.GeminiModels
 import com.musheer360.swiftslate.model.GroqModels
 import com.musheer360.swiftslate.model.PrefKeys
 import com.musheer360.swiftslate.model.ProviderType
@@ -320,7 +319,7 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                 )
                 Spacer(modifier = Modifier.height(rhythm.formGap))
                 DynamicModelDropdown(
-                    selectedLabel = if (apiKeys.isEmpty() || selectedModel.isBlank()) "" else GeminiModels.label(selectedModel),
+                    selectedModel = if (apiKeys.isEmpty() || selectedModel.isBlank()) "" else selectedModel,
                     enabled = apiKeys.isNotEmpty(),
                     expanded = modelExpanded,
                     onExpandedChange = { isOpening ->
@@ -330,7 +329,6 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                         }
                     },
                     models = geminiModelList,
-                    labelFor = { GeminiModels.label(it) },
                     onSelect = { id ->
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         selectedModel = id
@@ -349,7 +347,7 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                 )
                 Spacer(modifier = Modifier.height(rhythm.formGap))
                 DynamicModelDropdown(
-                    selectedLabel = if (apiKeys.isEmpty() || groqModel.isBlank()) "" else GroqModels.label(groqModel),
+                    selectedModel = if (apiKeys.isEmpty() || groqModel.isBlank()) "" else groqModel,
                     enabled = apiKeys.isNotEmpty(),
                     expanded = groqModelExpanded,
                     onExpandedChange = { isOpening ->
@@ -359,7 +357,6 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                         }
                     },
                     models = groqModelList,
-                    labelFor = { GroqModels.label(it) },
                     onSelect = { id ->
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         groqModel = id
@@ -753,12 +750,11 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DynamicModelDropdown(
-    selectedLabel: String,
+    selectedModel: String,
     enabled: Boolean,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     models: List<String>,
-    labelFor: (String) -> String,
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit,
     isFetching: Boolean,
@@ -770,7 +766,7 @@ private fun DynamicModelDropdown(
         onExpandedChange = { if (enabled) onExpandedChange(it) }
     ) {
         SlateTextField(
-            value = selectedLabel,
+            value = selectedModel,
             onValueChange = {},
             readOnly = true,
             modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
@@ -812,12 +808,11 @@ private fun DynamicModelDropdown(
                     }
                 }
                 models.forEach { id ->
-                    val displayLabel = labelFor(id)
                     DropdownMenuItem(
                         text = {
                             Text(
-                                text = displayLabel,
-                                color = if (displayLabel == selectedLabel || id == selectedLabel) {
+                                text = id,
+                                color = if (id == selectedModel) {
                                     MaterialTheme.colorScheme.primary
                                 } else {
                                     MaterialTheme.colorScheme.onSurface

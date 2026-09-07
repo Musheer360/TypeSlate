@@ -5,14 +5,22 @@ package com.musheer360.swiftslate.model
  * is driven with respect to reasoning ("thinking").
  *
  * Each curated model is defined once in [SPECS] together with the reasoning
- * parameters it needs. The default, display labels, and the per-model reasoning
- * params all derive from that single table, so adding or removing a model is a
- * one-line change that forces you to state its reasoning behavior right there.
+ * parameters it needs. The default and the per-model reasoning params both derive
+ * from that single table, so adding or removing a model is a one-line change that
+ * forces you to state its reasoning behavior right there.
  * Since issue #148 the Settings dropdown no longer renders from this table — it
  * lists whatever Groq's /models endpoint returns (see [ProviderModelsCache]);
- * SPECS remains the source for defaults, friendly names, and reasoning params.
- * Off-catalog models picked from that dynamic list send no reasoning params
- * ([reasoningParams] returns empty for unknown ids), which every model accepts.
+ * SPECS remains the source for defaults, retirement migration, and reasoning
+ * params. Off-catalog models picked from that dynamic list send no reasoning
+ * params ([reasoningParams] returns empty for unknown ids), which every model
+ * accepts.
+ *
+ * Model ids are shown to the user verbatim, exactly as Groq reports them. There is
+ * deliberately no id -> friendly-name mapping: a curated table can only ever name
+ * the handful of models it knows about, so the dropdown rendered pretty labels for
+ * two entries and raw ids for everything else the endpoint returned. Showing the
+ * provider's own ids is self-maintaining and matches the Custom provider, which
+ * has never had labels to map.
  *
  * Reasoning support on Groq is per-model and strictly validated by the API:
  * sending an unsupported reasoning parameter (or an unsupported value) returns
@@ -30,8 +38,8 @@ package com.musheer360.swiftslate.model
  */
 object GroqModels {
 
-    /** One entry per offered model: its ID, display label, + the reasoning params to send (empty = none). */
-    private data class Spec(val id: String, val label: String, val reasoning: Map<String, Any>)
+    /** One entry per offered model: its ID + the reasoning params to send (empty = none). */
+    private data class Spec(val id: String, val reasoning: Map<String, Any>)
 
     // Ordered fast/cheap -> higher quality. Curated set (not every model Groq hosts).
     // Only models that reliably TRANSFORM (never answer/respond to) the user's text are
@@ -52,10 +60,10 @@ object GroqModels {
         // this model's TPM limit is only 8,000 on the free/on-demand tier. Any value at or
         // near 8,000 makes every single request fail with HTTP 413 "Request too large"
         // before it reaches the model. Groq's own default is ample for medium effort.
-        Spec("openai/gpt-oss-120b", "GPT-OSS 120B", mapOf("reasoning_effort" to "medium", "include_reasoning" to false)),
+        Spec("openai/gpt-oss-120b", mapOf("reasoning_effort" to "medium", "include_reasoning" to false)),
         // Qwen 3.x: fully disable reasoning (never "default" — that blows up latency/quota).
         // Fastest option (~250ms) with excellent system-prompt adherence.
-        Spec("qwen/qwen3.6-27b", "Qwen 3.6 27B", mapOf("reasoning_effort" to "none"))
+        Spec("qwen/qwen3.6-27b", mapOf("reasoning_effort" to "none"))
     )
 
     /** Default model = first spec entry, so it can never point outside the catalog. */
@@ -85,9 +93,6 @@ object GroqModels {
 
     fun isChatCandidate(id: String): Boolean =
         NON_CHAT_SUBSTRINGS.none { id.contains(it, ignoreCase = true) }
-
-    /** Friendly display label for [model]; falls back to the id if unknown. */
-    fun label(model: String): String = SPECS.firstOrNull { it.id == model }?.label ?: model
 
     /**
      * Normalize a stored/selected model value. Dynamic selection (issue #148) means

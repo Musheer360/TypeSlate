@@ -61,12 +61,6 @@ class CatalogTest {
         assertFalse(GroqModels.isChatCandidate("meta-llama/llama-guard-4-12b"))
     }
 
-    @Test
-    fun groq_labels_present_and_fallback() {
-        for (id in GroqModels.ALL) assertTrue(GroqModels.label(id).isNotBlank())
-        assertEquals("unknown-model", GroqModels.label("unknown-model"))
-    }
-
     // ---------- GeminiModels ----------
 
     @Test
