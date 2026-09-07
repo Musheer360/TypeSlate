@@ -1,0 +1,4 @@
+- fix(settings): use the curated default for first-run model selection
+- fix(models): exclude Orpheus TTS models from the Groq model list
+- fix(models): keep per-model thinking pins, strip leaked reasoning
+- refactor(models): drop the curated id -> display-name mapping
