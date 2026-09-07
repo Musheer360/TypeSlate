@@ -1,0 +1,5 @@
+- fix(keys): only require an unlocked device on Android 15+
+- fix(ui): share one adaptive vertical rhythm across all tabs
+- chore(deps): bump com.android.application from 9.3.2 to 9.4.0
+- chore(deps): bump softprops/action-gh-release from 3.0.2 to 3.0.3
+- fix(ui): restore layout exactly as in 6b040a6 while preserving dynamic model fetching
