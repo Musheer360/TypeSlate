@@ -71,7 +71,22 @@ internal class AndroidKeystoreCipher : KeyCipher {
                             // requiring an unlocked device costs nothing and stops the stored
                             // API keys from being decryptable on a locked device. Applies to
                             // newly generated keys only; existing installs keep theirs.
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                            //
+                            // Gated to Android 15+ on Google's own advice (issue #141). Android
+                            // 12, 13 and 14 ship a platform bug where keys carrying this flag
+                            // cannot be generated, imported or used at all unless a secure lock
+                            // screen is set, and are silently deleted if the user later removes
+                            // it. Both failures are terminal here: generation throws, so
+                            // [available] goes false and no key can ever be saved; and deletion
+                            // makes the stored blob undecryptable, so getKeys() returns empty
+                            // and the user's keys are simply gone. Enabling it below API 35
+                            // trades a locked-device hardening win for total key loss on three
+                            // major versions.
+                            //
+                            // See KeyGenParameterSpec.Builder#setUnlockedDeviceRequired.
+                            if (android.os.Build.VERSION.SDK_INT >=
+                                android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM
+                            ) {
                                 setUnlockedDeviceRequired(true)
                             }
                         }
