@@ -7,13 +7,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
+/**
+ * @param contentPadding inner padding. Defaults to the shared [SlateRhythm] so every
+ *   card on every tab agrees; pass a value only to deliberately deviate.
+ * @param verticalArrangement how children are distributed. Only meaningful together
+ *   with [fillHeight].
+ */
 @Composable
 fun SlateCard(
     modifier: Modifier = Modifier,
     fillHeight: Boolean = false,
+    contentPadding: Dp = LocalSlateRhythm.current.cardPadding,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Surface(
@@ -24,21 +33,30 @@ fun SlateCard(
     ) {
         Column(
             modifier = Modifier
-                .padding(14.dp)
+                .padding(contentPadding)
                 .then(if (fillHeight) Modifier.fillMaxHeight() else Modifier),
+            verticalArrangement = verticalArrangement,
             content = content
         )
     }
 }
 
+/**
+ * The page heading. Size and the gap below it come from the shared [SlateRhythm], so
+ * all four tabs start at the same baseline and their first cards line up.
+ */
 @Composable
-fun ScreenTitle(title: String) {
+fun ScreenTitle(
+    title: String,
+    fontSize: TextUnit = LocalSlateRhythm.current.titleSize,
+    bottomPadding: Dp = LocalSlateRhythm.current.titleGap
+) {
     Text(
         text = title,
-        fontSize = 32.sp,
+        fontSize = fontSize,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.padding(bottom = 20.dp)
+        modifier = Modifier.padding(bottom = bottomPadding)
     )
 }
 
@@ -83,6 +101,7 @@ fun SlateDivider() {
 @Composable
 fun SlateItemCard(
     modifier: Modifier = Modifier,
+    contentPadding: Dp = LocalSlateRhythm.current.itemPadding,
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
@@ -91,7 +110,7 @@ fun SlateItemCard(
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(contentPadding),
             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
             content = content
         )

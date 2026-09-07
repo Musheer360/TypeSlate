@@ -40,6 +40,7 @@ import com.musheer360.swiftslate.model.PrefKeys
 import com.musheer360.swiftslate.model.ProviderType
 import com.musheer360.swiftslate.provider.EndpointValidator
 import com.musheer360.swiftslate.provider.GroqConfig
+import com.musheer360.swiftslate.ui.components.LocalSlateRhythm
 import com.musheer360.swiftslate.ui.components.ScreenTitle
 import com.musheer360.swiftslate.ui.components.SlateCard
 import com.musheer360.swiftslate.ui.components.SlateDivider
@@ -242,11 +243,13 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
         }
     }
 
+    val rhythm = LocalSlateRhythm.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer { }
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = rhythm.screenPaddingH, vertical = rhythm.screenPaddingV)
     ) {
         ScreenTitle(stringResource(R.string.settings_title))
 
@@ -254,10 +257,10 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
         SlateCard {
             Text(
                 text = stringResource(R.string.settings_provider_title),
-                fontSize = 13.sp,
+                fontSize = rhythm.bodySize,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(rhythm.formGap))
             ExposedDropdownMenuBox(
                 expanded = providerExpanded,
                 onExpandedChange = { providerExpanded = !providerExpanded }
@@ -308,14 +311,14 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(rhythm.formGap))
             if (providerType == ProviderType.GEMINI) {
                 Text(
                     text = stringResource(R.string.settings_model_title),
-                    fontSize = 13.sp,
+                    fontSize = rhythm.bodySize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(rhythm.formGap))
                 DynamicModelDropdown(
                     selectedLabel = if (apiKeys.isEmpty() || selectedModel.isBlank()) "" else GeminiModels.label(selectedModel),
                     enabled = apiKeys.isNotEmpty(),
@@ -341,10 +344,10 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
             } else if (providerType == ProviderType.GROQ) {
                 Text(
                     text = stringResource(R.string.settings_model_title),
-                    fontSize = 13.sp,
+                    fontSize = rhythm.bodySize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(rhythm.formGap))
                 DynamicModelDropdown(
                     selectedLabel = if (apiKeys.isEmpty() || groqModel.isBlank()) "" else GroqModels.label(groqModel),
                     enabled = apiKeys.isNotEmpty(),
@@ -370,10 +373,10 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
             } else {
                 Text(
                     text = stringResource(R.string.settings_endpoint_title),
-                    fontSize = 13.sp,
+                    fontSize = rhythm.bodySize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(rhythm.formGap))
                 SlateTextField(
                     value = customEndpoint,
                     onValueChange = {
@@ -404,17 +407,17 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                     Text(
                         text = msg,
                         color = MaterialTheme.colorScheme.error,
-                        fontSize = 13.sp,
-                        modifier = Modifier.padding(top = 8.dp)
+                        fontSize = rhythm.bodySize,
+                        modifier = Modifier.padding(top = rhythm.formGap)
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(rhythm.formGap))
                 Text(
                     text = stringResource(R.string.settings_model_title),
-                    fontSize = 13.sp,
+                    fontSize = rhythm.bodySize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(rhythm.formGap))
                 if (customModels.isNotEmpty()) {
                     ExposedDropdownMenuBox(
                         expanded = customModelExpanded,
@@ -519,30 +522,30 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                     Text(
                         text = msg,
                         color = if (fetchSuccess) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 13.sp,
-                        modifier = Modifier.padding(top = 4.dp)
+                        fontSize = rhythm.bodySize,
+                        modifier = Modifier.padding(top = rhythm.tightGap)
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(rhythm.formGap))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.settings_temperature_title),
-                    fontSize = 13.sp,
+                    fontSize = rhythm.bodySize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = String.format("%.1f", temperature),
-                    fontSize = 15.sp,
+                    fontSize = rhythm.emphasisSize,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(rhythm.sliderGap))
             Slider(
                 value = temperature,
                 onValueChange = {
@@ -557,17 +560,17 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                 },
                 valueRange = 0f..2f,
                 steps = 19,
-                modifier = Modifier.fillMaxWidth().height(26.dp),
+                modifier = Modifier.fillMaxWidth().height(rhythm.sliderHeight),
                 colors = SliderDefaults.colors(
                     thumbColor = MaterialTheme.colorScheme.primary,
                     activeTrackColor = MaterialTheme.colorScheme.primary,
                     inactiveTrackColor = MaterialTheme.colorScheme.outline
                 )
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(rhythm.tightGap))
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(rhythm.cardGap))
 
         // Card 2: Trigger Prefix
         SlateCard {
@@ -578,7 +581,7 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
             ) {
                 Text(
                     text = stringResource(R.string.settings_trigger_prefix_desc, triggerPrefix),
-                    fontSize = 13.sp,
+                    fontSize = rhythm.bodySize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f).padding(end = 16.dp)
                 )
@@ -606,22 +609,22 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                 Text(
                     text = msg,
                     color = MaterialTheme.colorScheme.error,
-                    fontSize = 13.sp,
-                    modifier = Modifier.padding(top = 8.dp)
+                    fontSize = rhythm.bodySize,
+                    modifier = Modifier.padding(top = rhythm.formGap)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(rhythm.cardGap))
 
         // Card 3: Backup
         SlateCard {
             Text(
                 text = stringResource(R.string.backup_desc),
-                fontSize = 13.sp,
+                fontSize = rhythm.bodySize,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(rhythm.groupGap))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -653,48 +656,70 @@ fun SettingsScreen(commandManager: CommandManager, prefs: SharedPreferences, key
                 Text(
                     text = msg,
                     color = if (backupSuccess) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error,
-                    fontSize = 13.sp,
-                    modifier = Modifier.padding(top = 8.dp)
+                    fontSize = rhythm.bodySize,
+                    modifier = Modifier.padding(top = rhythm.formGap)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(rhythm.cardGap))
 
-        // Card 4: About
-        SlateCard(modifier = Modifier.weight(1f), fillHeight = true) {
-            Text(
-                text = stringResource(R.string.app_name) + " v" + BuildConfig.VERSION_NAME,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.settings_check_updates),
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable(interactionSource = null, indication = null) {
-                    uriHandler.openUri("https://github.com/Musheer360/SwiftSlate/releases/latest")
-                }
-            )
-            Spacer(modifier = Modifier.weight(1f))
+        // Card 4: About. The only weighted child, so its bottom edge lands flush
+        // screenPaddingV above the nav bar exactly like the last card on every
+        // other tab, and it absorbs whatever slack the rhythm above did not take.
+        //
+        // That slack is split rather than pooled. The two text groups each sit in
+        // an equally weighted half, so the divider lands on the card's midline and
+        // each group is centred within its own half. Pooling it instead — whether
+        // as weighted spacers hugging the divider (which opened a ~104 dp void on
+        // tall screens) or as one centred block (which left dead space above the
+        // version line and below the sponsor line) — is what this replaces.
+        SlateCard(
+            modifier = Modifier.weight(1f),
+            fillHeight = true
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.app_name) + " v" + BuildConfig.VERSION_NAME,
+                    fontSize = rhythm.emphasisSize,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(rhythm.tightGap))
+                Text(
+                    text = stringResource(R.string.settings_check_updates),
+                    fontSize = rhythm.bodySize,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(interactionSource = null, indication = null) {
+                        uriHandler.openUri("https://github.com/Musheer360/SwiftSlate/releases/latest")
+                    }
+                )
+            }
+            Spacer(modifier = Modifier.height(rhythm.groupGap))
             SlateDivider()
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = stringResource(R.string.settings_made_by),
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.settings_sponsor),
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable(interactionSource = null, indication = null) {
-                    uriHandler.openUri("https://github.com/sponsors/Musheer360")
-                }
-            )
+            Spacer(modifier = Modifier.height(rhythm.groupGap))
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_made_by),
+                    fontSize = rhythm.bodySize,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(rhythm.tightGap))
+                Text(
+                    text = stringResource(R.string.settings_sponsor),
+                    fontSize = rhythm.bodySize,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(interactionSource = null, indication = null) {
+                        uriHandler.openUri("https://github.com/sponsors/Musheer360")
+                    }
+                )
+            }
         }
     }
 
@@ -739,6 +764,7 @@ private fun DynamicModelDropdown(
     isFetching: Boolean,
     fetchingText: String
 ) {
+    val rhythm = LocalSlateRhythm.current
     ExposedDropdownMenuBox(
         expanded = expanded && enabled,
         onExpandedChange = { if (enabled) onExpandedChange(it) }
@@ -773,7 +799,7 @@ private fun DynamicModelDropdown(
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     text = fetchingText,
-                                    fontSize = 13.sp,
+                                    fontSize = rhythm.bodySize,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }

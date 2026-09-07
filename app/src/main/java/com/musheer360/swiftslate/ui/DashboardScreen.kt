@@ -32,6 +32,7 @@ import com.musheer360.swiftslate.SwiftSlateApp
 import com.musheer360.swiftslate.manager.CommandManager
 import com.musheer360.swiftslate.manager.KeyManager
 import com.musheer360.swiftslate.manager.StatsManager
+import com.musheer360.swiftslate.ui.components.LocalSlateRhythm
 import com.musheer360.swiftslate.ui.components.ScreenTitle
 import com.musheer360.swiftslate.ui.components.SlateCard
 import com.musheer360.swiftslate.ui.components.SlateDivider
@@ -138,12 +139,13 @@ fun DashboardScreen(keyManager: KeyManager, commandManager: CommandManager, stat
     }
 
     val noData = stringResource(R.string.dashboard_no_data)
+    val rhythm = LocalSlateRhythm.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer { }
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = rhythm.screenPaddingH, vertical = rhythm.screenPaddingV)
     ) {
         ScreenTitle(stringResource(R.string.dashboard_title))
 
@@ -168,7 +170,7 @@ fun DashboardScreen(keyManager: KeyManager, commandManager: CommandManager, stat
                     Text(
                         text = if (isServiceEnabled) stringResource(R.string.service_status_active)
                         else stringResource(R.string.service_status_inactive),
-                        fontSize = 15.sp,
+                        fontSize = rhythm.emphasisSize,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -187,9 +189,9 @@ fun DashboardScreen(keyManager: KeyManager, commandManager: CommandManager, stat
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(rhythm.groupGap))
             SlateDivider()
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(rhythm.groupGap))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -197,12 +199,12 @@ fun DashboardScreen(keyManager: KeyManager, commandManager: CommandManager, stat
             ) {
                 Text(
                     text = stringResource(R.string.dashboard_api_keys_title),
-                    fontSize = 13.sp,
+                    fontSize = rhythm.bodySize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = stringResource(R.string.dashboard_keys_configured, keyCount),
-                    fontSize = 15.sp,
+                    fontSize = rhythm.emphasisSize,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -211,33 +213,33 @@ fun DashboardScreen(keyManager: KeyManager, commandManager: CommandManager, stat
                 Text(
                     text = stringResource(R.string.dashboard_add_key_hint),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 13.sp,
-                    modifier = Modifier.padding(top = 8.dp)
+                    fontSize = rhythm.bodySize,
+                    modifier = Modifier.padding(top = rhythm.formGap)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(rhythm.cardGap))
 
         // Interrupted-service banner: the toggle can still read "on" while the process is dead.
         if (showKilledBanner) {
             SlateCard {
                 Text(
                     text = stringResource(R.string.dashboard_service_killed_title),
-                    fontSize = 15.sp,
+                    fontSize = rhythm.emphasisSize,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.error
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(rhythm.tightGap))
                 Text(
                     text = stringResource(R.string.dashboard_service_killed_message),
-                    fontSize = 13.sp,
+                    fontSize = rhythm.bodySize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(rhythm.groupGap))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(rhythm.groupGap)
                 ) {
                     Button(
                         onClick = {
@@ -262,7 +264,7 @@ fun DashboardScreen(keyManager: KeyManager, commandManager: CommandManager, stat
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(rhythm.cardGap))
         }
 
         // Usage statistics card
@@ -275,42 +277,42 @@ fun DashboardScreen(keyManager: KeyManager, commandManager: CommandManager, stat
                 Column(horizontalAlignment = Alignment.Start) {
                     Text(
                         text = "$monthlyRequests",
-                        fontSize = 24.sp,
+                        fontSize = rhythm.statSize,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = stringResource(R.string.dashboard_monthly_requests),
-                        fontSize = 12.sp,
+                        fontSize = rhythm.captionSize,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = favoriteCommand ?: noData,
-                        fontSize = 24.sp,
+                        fontSize = rhythm.statSize,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = stringResource(R.string.dashboard_favorite_command),
-                        fontSize = 12.sp,
+                        fontSize = rhythm.captionSize,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(rhythm.groupGap))
             SlateDivider()
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(rhythm.groupGap))
 
             // 7-day bar chart
             Text(
                 text = stringResource(R.string.dashboard_last_7_days),
-                fontSize = 13.sp,
+                fontSize = rhythm.bodySize,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(rhythm.formGap))
 
             val maxCount = dailyCounts.maxOfOrNull { it.second } ?: 0
             val dayNameFmt = remember { SimpleDateFormat("EEE", Locale.getDefault()) }
@@ -338,7 +340,7 @@ fun DashboardScreen(keyManager: KeyManager, commandManager: CommandManager, stat
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(rhythm.tightGap))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -353,7 +355,7 @@ fun DashboardScreen(keyManager: KeyManager, commandManager: CommandManager, stat
                                     .background(MaterialTheme.colorScheme.primary)
                             )
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(rhythm.tightGap))
                         Text(
                             text = dayLabel,
                             fontSize = 10.sp,
