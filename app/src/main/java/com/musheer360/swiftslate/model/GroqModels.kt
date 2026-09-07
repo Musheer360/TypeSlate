@@ -100,11 +100,17 @@ object GroqModels {
 
     /**
      * Groq's /models endpoint also serves entries that cannot run text-transforming
-     * chat completions: Whisper transcription, PlayAI TTS, and Llama Guard safety
-     * classifiers. Conservative substring exclusions, verified against the live
+     * chat completions: Whisper transcription, PlayAI and Orpheus TTS, and Llama Guard
+     * safety classifiers. Conservative substring exclusions, verified against the live
      * catalog; anything unrecognized stays listed (fail-open).
+     *
+     * Substrings are a stopgap. The live response carries output_modalities ("text",
+     * "speech", "transcription"), which would classify these exactly instead of by name
+     * — canopylabs/orpheus-* was only caught here after it slipped through and showed up
+     * as a selectable model. Using it means threading per-model metadata through
+     * ApiClientUtils.parseModelIds, which currently returns bare ids.
      */
-    private val NON_CHAT_SUBSTRINGS = listOf("whisper", "-tts", "guard", "playai")
+    private val NON_CHAT_SUBSTRINGS = listOf("whisper", "-tts", "guard", "playai", "orpheus")
 
     fun isChatCandidate(id: String): Boolean =
         NON_CHAT_SUBSTRINGS.none { id.contains(it, ignoreCase = true) }
