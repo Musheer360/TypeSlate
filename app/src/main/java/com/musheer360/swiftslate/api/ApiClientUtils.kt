@@ -275,6 +275,33 @@ internal object ApiClientUtils {
 
     private val SECRET_REGEX = Regex("(?:sk-|gsk_|AIza|xai-|sk-ant-)[A-Za-z0-9_\\-]{6,}")
 
+    /**
+     * Removes a reasoning ("thinking") block that a model emitted inline in its message
+     * content, returning only the answer that follows it.
+     *
+     * SwiftSlate sends no reasoning_effort, so every Groq model runs at its own default,
+     * which for reasoning models means reasoning is ON. Groq's reasoning_format then
+     * defaults to "raw", which embeds the chain of thought in the message content wrapped
+     * in <think> tags. Without this, that thinking would be pasted straight into the
+     * user's text field.
+     *
+     * Deliberately keyed on the CLOSING tag and the LAST occurrence of it: raw format puts
+     * reasoning first and the answer after, and the opening tag is not always present in
+     * the content we receive. Text with no closing tag is returned untouched, so a user
+     * genuinely transforming prose that mentions <think> is unaffected unless it also
+     * closes the tag. If nothing follows the tag the result is blank, which the caller
+     * already treats as an empty response rather than pasting anything.
+     *
+     * Model-agnostic on purpose: which models reason, and which of reasoning_format or
+     * include_reasoning they honour, is per-model knowledge absent from /models. Stripping
+     * the output needs no such knowledge.
+     */
+    fun stripReasoningBlock(text: String): String {
+        val close = text.lastIndexOf("</think>")
+        if (close < 0) return text
+        return text.substring(close + "</think>".length).trim()
+    }
+
     fun stripMarkdownFences(text: String): String {
         val trimmed = text.trim()
         // Check the trimmed string: leading whitespace before the fence previously

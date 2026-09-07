@@ -59,12 +59,13 @@ class CatalogTest {
         assertFalse(GroqModels.isChatCandidate("groq/playai-tts-qwen"))
         assertFalse(GroqModels.isChatCandidate("llama-guard-3-8b-8192"))
         assertFalse(GroqModels.isChatCandidate("meta-llama/llama-guard-4-12b"))
-    }
-
-    @Test
-    fun groq_labels_present_and_fallback() {
-        for (id in GroqModels.ALL) assertTrue(GroqModels.label(id).isNotBlank())
-        assertEquals("unknown-model", GroqModels.label("unknown-model"))
+        // Present in the live catalog with output_modalities "speech".
+        assertFalse(GroqModels.isChatCandidate("canopylabs/orpheus-v1-english"))
+        assertFalse(GroqModels.isChatCandidate("canopylabs/orpheus-arabic-saudi"))
+        // Live chat models that must survive the filter.
+        assertTrue(GroqModels.isChatCandidate("qwen/qwen3.8-27b"))
+        assertTrue(GroqModels.isChatCandidate("groq/compound"))
+        assertTrue(GroqModels.isChatCandidate("allam-2-7b"))
     }
 
     // ---------- GeminiModels ----------

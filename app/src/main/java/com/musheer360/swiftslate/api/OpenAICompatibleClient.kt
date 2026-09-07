@@ -300,6 +300,13 @@ class OpenAICompatibleClient {
 
                     val message = choice.optJSONObject("message")
                     var resultText = message?.optString("content", "") ?: ""
+                    // Off-catalog reasoning models get no reasoning params (we cannot know
+                    // which values they accept), so they run at Groq's default: reasoning ON
+                    // with reasoning_format "raw", which embeds the chain of thought in the
+                    // content inside <think> tags. Measured on qwen/qwen3.6-27b. Strip it
+                    // before the blank check, so a reply that is nothing but reasoning counts
+                    // as empty instead of pasting the model's monologue into the user's text.
+                    resultText = ApiClientUtils.stripReasoningBlock(resultText)
                     if (resultText.isBlank()) {
                         return Result.failure(Exception("Model returned empty response"))
                     }
